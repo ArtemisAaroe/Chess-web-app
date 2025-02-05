@@ -44,6 +44,7 @@ export class Board {
             this.mode = ModeType.PieceSelect;
             output.push([]);
             console.log("this.getPieces")
+            console.log(this.boardstate)
             output.push(this.getPieces(this.player));
 
             
@@ -52,15 +53,18 @@ export class Board {
             this.selectedPiece = input;
             output.push([]);
             console.log("this.getMoves")
+            console.log(this.boardstate)
+            //console.log ("mode: " + this.mode + " player: " + this.player + " moves: " + this.moves + " bufferList: " + this.bufferList + " selectedPiece: " + this.selectedPiece)
             output.push(this.getMoves(input, this.player));
-
+            
         } else if (this.mode === ModeType.MoveSelect) {
             this.mode = ModeType.PieceSelect;
             console.log("this.executeMove")
-            output.push(this.executeMove(input));
-            output.push(this.getPieces(this.player * (-1)));
-            //output.push(this.bufferList);
+            console.log(this.boardstate)
+            output.push(this.executeMove(input, this.selectedPiece));
+            console.log(this.boardstate)
             this.player = this.player * (-1)
+            output.push(this.getPieces(this.player));
             this.moves += 1;
             this.selectedPiece = "";
             this.mode = ModeType.PieceSelect;
@@ -90,7 +94,6 @@ export class Board {
     //todo: add logic for pawn moves casteling, king kant walk into oposet player move.
     private getMoves(input: string, player: number): string[] {
         const moves: string[] = [];
-        const illegalMoves: Set<string> = new Set<string>;
         const startingSquare: {row: number, column: number} = this.boardCodeToNumObject(input);
         const piece: Piece|null = this.boardstate[startingSquare.row][startingSquare.column];
         
@@ -99,14 +102,6 @@ export class Board {
         }
         if (piece.getPlayer() !== player) {
             throw new Error(input + " is " + piece.getPlayerColor() + " and not piece of player");
-        }
-        if (piece.getType() === PieceType.King && piece.getPlayer() === this.player) {
-            for (const opponentPiece of this.getPieces(player * (-1))){
-                for (const square of this.getMoves(opponentPiece, player * (-1))) {
-                    illegalMoves.add(square);
-                }
-            }
-            
         }
         
         
@@ -123,7 +118,7 @@ export class Board {
             if (this.boardstate[possibleMoveSquare.row][possibleMoveSquare.column]?.getPlayer() === player ) {
                 continue;
             }
-            if (illegalMoves.has(this.numObjectToBoardCode(possibleMoveSquare))) {
+            if (this.doesMoveExposeKing(this.numObjectToBoardCode(startingSquare), this.numObjectToBoardCode(possibleMoveSquare), player)) {
                 continue;
             }
 
@@ -144,7 +139,7 @@ export class Board {
                 if (this.boardstate[possibleMoveSquare.row][possibleMoveSquare.column]?.getPlayer() === player ) {
                     break;
                 }
-                if (illegalMoves.has(this.numObjectToBoardCode(possibleMoveSquare))) {
+                if (this.doesMoveExposeKing(this.numObjectToBoardCode(startingSquare), this.numObjectToBoardCode(possibleMoveSquare), player)) {
                     break;
                 }
                 
@@ -161,21 +156,14 @@ export class Board {
 
     //execute selected move
     //todo add special rulse for spesial cases
-    private executeMove(input: string): string[] {
-        const oldSquare: {row: number, column: number} = this.boardCodeToNumObject(this.selectedPiece)
+    private executeMove(input: string, selectedPiece: string): string[] {
+        const oldSquare: {row: number, column: number} = this.boardCodeToNumObject(selectedPiece);
         const piece: Piece|null = this.boardstate[oldSquare.row][oldSquare.column];
         const newSquare: {row: number, column: number} = this.boardCodeToNumObject(input);
         
         this.boardstate[oldSquare.row][oldSquare.column] = null;
         this.boardstate[newSquare.row][newSquare.column] = piece;
         
-        // const oldBufferList: string[] = this.bufferList
-        // this.player = this.player * (-1)
-        // output.push([this.numObjectToBoardCode(oldSquare), this.numObjectToBoardCode(newSquare)])
-        // output.push(this.getPieces()[1]);
-        // output.push(oldBufferList)
-        // this.moves += 1;
-        // this.selectedPiece = "";
         return [this.numObjectToBoardCode(oldSquare), this.numObjectToBoardCode(newSquare)];
     }
 
@@ -197,6 +185,38 @@ export class Board {
 
     private numObjectToBoardCode(object: {row: number, column: number}): string {
         return String.fromCharCode(65 + object.column) + (object.row + 1);
+
+    }
+
+    private doesMoveExposeKing(startingSquare: string, possibleMoveSquare: string, player: number): boolean {
+        console.log("blubb")
+        if (player !== this.player) {
+            return false;
+        }
+        const possibleMoveNumObject: {row: number, column: number} = this.boardCodeToNumObject(possibleMoveSquare);
+
+        const pieceMemory: Piece | null = this.boardstate[possibleMoveNumObject.row][possibleMoveNumObject.column]
+        
+        //tests out move
+        this.executeMove(possibleMoveSquare, startingSquare);
+        
+        //checks if king exposed
+        const king: string = this.getPieces(player).filter(square => {
+            const possibleKing = this.boardCodeToNumObject(square);
+            if (this.boardstate[possibleKing.row][possibleKing.column]?.getType() === PieceType.King) {
+                return this.numObjectToBoardCode(possibleKing);
+            } 
+        })[0]
+        const kingExposed: boolean = this.getPieces(player * (-1))
+            .flatMap(opponentPiece => this.getMoves(opponentPiece, player * (-1)))
+            .some(square => king === square)
+
+        //resets board
+        this.executeMove(startingSquare, possibleMoveSquare)
+        this.boardstate[possibleMoveNumObject.row][possibleMoveNumObject.column] = pieceMemory;
+        return kingExposed
+
+
 
     }
 }
