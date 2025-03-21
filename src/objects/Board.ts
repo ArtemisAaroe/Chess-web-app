@@ -9,13 +9,17 @@ export class Board {
     private moves: number;
     private bufferList: string[];
     private selectedPiece: string;
+    private functionMap: Map<string, Array<(arg: string[][]) => void>>;
+    private changePiece: (square: string, piece: Piece | null) => void
 
-    constructor(boardstate: Map<string, { piece: Piece | null; color: string }>) {
+    constructor(boardstate: Map<string, { piece: Piece | null; color: string }>, changePiece: (square: string, piece: Piece | null) => void) {
         this.mode = ModeType.Start
         this.player = 1
         this.moves = 0
         this.bufferList = []
         this.selectedPiece = ""
+        this.functionMap = new Map();
+        this.changePiece = changePiece; 
         for (const number of ["1", "2", "3", "4", "5", "6", "7", "8"]) {
             const rowOfBoardstate: (Piece|null)[] = []
             for (const letter of ["A", "B", "C", "D", "E", "F", "G", "H"]) {
@@ -53,21 +57,30 @@ export class Board {
             this.selectedPiece = input;
             output.push([]);
             console.log("this.getMoves")
-            console.log(this.boardstate)
             //console.log ("mode: " + this.mode + " player: " + this.player + " moves: " + this.moves + " bufferList: " + this.bufferList + " selectedPiece: " + this.selectedPiece)
             output.push(this.getMoves(input, this.player));
+
             
         } else if (this.mode === ModeType.MoveSelect) {
             this.mode = ModeType.PieceSelect;
+            
+            
             console.log("this.executeMove")
-            console.log(this.boardstate)
+            //console.log(this.boardstate)
+            const square: {row: number, column: number} = this.boardCodeToNumObject(this.selectedPiece);
+            this.boardstate[square.row][square.column]?.moved()
             output.push(this.executeMove(input, this.selectedPiece));
-            console.log(this.boardstate)
+            
+            this.functionMap.get(input)?.forEach(func => func(output));
+            this.functionMap = new Map();
+            
+            //console.log(this.boardstate)
             this.player = this.player * (-1)
             output.push(this.getPieces(this.player));
             this.moves += 1;
             this.selectedPiece = "";
             this.mode = ModeType.PieceSelect;
+
         } else {
             throw new Error("the state of this object is broken")
         }
@@ -103,6 +116,9 @@ export class Board {
         if (piece.getPlayer() !== player) {
             throw new Error(input + " is " + piece.getPlayerColor() + " and not piece of player");
         }
+        if (piece.getType() === PieceType.Pawn) {
+            return this.getPawnMoves(moves, startingSquare, piece, player)
+        }
         
         
         let possibleMoveSquare: {row: number, column: number};
@@ -122,7 +138,7 @@ export class Board {
                 continue;
             }
 
-            moves.push(this.numObjectToBoardCode(possibleMoveSquare))
+            moves.push(this.numObjectToBoardCode(possibleMoveSquare));
             
             
             if (this.boardstate[possibleMoveSquare.row][possibleMoveSquare.column] !== null ) {
@@ -189,13 +205,10 @@ export class Board {
     }
 
     private doesMoveExposeKing(startingSquare: string, possibleMoveSquare: string, player: number): boolean {
-        console.log("blubb")
         if (player !== this.player) {
             return false;
         }
-        const possibleMoveNumObject: {row: number, column: number} = this.boardCodeToNumObject(possibleMoveSquare);
-
-        const pieceMemory: Piece | null = this.boardstate[possibleMoveNumObject.row][possibleMoveNumObject.column]
+        const boardMemory: (Piece|null)[][] = this.boardstate.map(row => [...row]);
         
         //tests out move
         this.executeMove(possibleMoveSquare, startingSquare);
@@ -212,11 +225,87 @@ export class Board {
             .some(square => king === square)
 
         //resets board
-        this.executeMove(startingSquare, possibleMoveSquare)
-        this.boardstate[possibleMoveNumObject.row][possibleMoveNumObject.column] = pieceMemory;
+        this.boardstate = boardMemory;
         return kingExposed
-
-
-
     }
+
+    private getPawnMoves(moves: string[], startingSquare: {row: number, column: number}, piece: Piece, player: number): string[] {
+        let i = -1
+        for (const direction of piece.getMovementMatrix()) {
+            i++;
+            const possibleMoveSquare: {row: number, column: number} = { 
+                row: startingSquare.row + direction[0], 
+                column: startingSquare.column + direction[1] 
+            };
+            
+            if (!this.squareOnBoard(possibleMoveSquare)) {
+                continue;
+            }
+            
+            const squarePlayer = this.boardstate[possibleMoveSquare.row][possibleMoveSquare.column]?.getPlayer();
+            if (i === 0) {
+                if (squarePlayer === undefined) {
+                    if (piece.getEnPassantLeft()) {
+                        this.addFunction(this.numObjectToBoardCode(possibleMoveSquare), (output: string[][]) => {
+                            this.boardstate[possibleMoveSquare.row + player * (-1)][possibleMoveSquare.column] = null;
+                            output[0].push("", ...[this.numObjectToBoardCode({row: possibleMoveSquare.row + player * (-1), column: possibleMoveSquare.column})])               
+                        });
+                    } else {
+                        continue;
+                    }
+                } else if (squarePlayer === player) {
+                    continue;
+                }
+            }
+            if (i === 1) {
+                if (squarePlayer === undefined) {
+                    if (piece.getEnPassantRight()) {
+                        this.addFunction(this.numObjectToBoardCode(possibleMoveSquare), (output: string[][]) => {
+                            this.boardstate[possibleMoveSquare.row + player * (-1)][possibleMoveSquare.column] = null
+                            output[0].push("", ...[this.numObjectToBoardCode({row: possibleMoveSquare.row + player * (-1), column: possibleMoveSquare.column})])                                 });
+                    } else {
+                        continue;
+                    }
+                } else if (squarePlayer === player) {
+                    continue;
+                }
+            }
+            if (i === 2 && squarePlayer !== undefined) {
+                break;
+            } 
+            if (i === 3) {
+                if (piece.getHasMoved()) {
+                    continue
+                }
+                if (squarePlayer !== undefined) {
+                    continue
+                }
+                
+                const pieceLeft: Piece | null = this.boardstate[possibleMoveSquare.row][possibleMoveSquare.column - 1];
+                if (pieceLeft?.getPlayer() === player * (-1) && pieceLeft?.getType() === PieceType.Pawn ) {
+                    this.addFunction(this.numObjectToBoardCode(possibleMoveSquare), () => pieceLeft.setEnPassantRightTrue())
+                }
+
+                const pieceRight: Piece | null = this.boardstate[possibleMoveSquare.row][possibleMoveSquare.column + 1]
+                if (pieceRight?.getPlayer() === player * (-1) && pieceRight?.getType() === PieceType.Pawn ) {
+                    this.addFunction(this.numObjectToBoardCode(possibleMoveSquare), () => pieceRight.setEnPassantLeftTrue())
+                }
+
+            }
+
+            if (this.doesMoveExposeKing(this.numObjectToBoardCode(startingSquare), this.numObjectToBoardCode(possibleMoveSquare), player)) {
+                continue;
+            }
+            moves.push(this.numObjectToBoardCode(possibleMoveSquare));  
+        }
+        //console.log(moves)
+        return moves;
+    }
+
+    addFunction(key: string, func: (output: string[][]) => void): void {
+        if (!this.functionMap.has(key)) {
+          this.functionMap.set(key, []);
+        }
+        this.functionMap.get(key)!.push(func);
+      }
 }

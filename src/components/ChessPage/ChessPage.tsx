@@ -1,7 +1,7 @@
 import "./ChessPage.css"
 import BoardSquare from "../BoardSquare/BoardSquare"
 import { Piece } from "../../objects/Piece"
-import { useCallback, useEffect, useMemo, useRef, useState } from "react"
+import { useCallback, useEffect, useRef, useState } from "react"
 import { PieceType } from "../../emums/Piece"
 import { Board } from "../../objects/Board"
 
@@ -82,21 +82,49 @@ export default function ChessPage() {
     
     ]));
 
-    const [board] = useState(() => new Board(boardstate));
-    
-    const movePiece = useCallback((move:{from: string, to: string}):void => {   
+    const changePiece = useCallback((square: string, piece: Piece | null): void => {
         setBoardstate((boardstate) => {
-            
             const newBoardstate = new Map(boardstate);
-            const entry = newBoardstate.get(move.from)
-            if (!entry || !entry.piece) {
-                return boardstate
+            const entry = newBoardstate.get(square)
+            if (!entry) {
+                return boardstate;
             }
-            newBoardstate.set(move.to, {color: "#f0f0f", piece: entry?.piece})
-            newBoardstate.set(move.from, {color: "#f0f0f", piece: null})
+            newBoardstate.set(square, {color: entry?.color, piece: piece});
             return newBoardstate;
         });
-    },[])
+    }, []);
+
+    const [board] = useState(() => new Board(boardstate, changePiece));
+    
+    const movePiece = useCallback((moves: string[]):void => {   
+        setBoardstate((boardstate) => {
+            const newBoardstate = new Map(boardstate);
+            const move: {from: string, to: string} =  {from: "", to: ""}
+            let i: number = 0;
+
+            while (moves.length > i) {
+                console.log("blubbe")
+                move.from = moves[i];
+                i++;
+                move.to = moves[i];
+                i++;
+                if (move.from === "") {
+                    newBoardstate.set(move.to, {color: "#f0f0f", piece: null})
+                    continue;
+                }
+                const entry = newBoardstate.get(move.from)
+
+                if (!entry || !entry.piece) {
+                    console.warn(`Invalid move format: ${move}`);
+                    continue;
+                }
+                newBoardstate.set(move.to, {color: "#f0f0f", piece: entry?.piece})
+                newBoardstate.set(move.from, {color: "#f0f0f", piece: null})
+            }
+            return newBoardstate;
+            
+        });
+    },[setBoardstate])
 
 
     const colorSquare = useCallback((squaresNew: string[], squaresOld: string[]): void => {
@@ -118,22 +146,14 @@ export default function ChessPage() {
             }
             return newBoardstate;
         });
-    }, [])
+    }, [setBoardstate])
 
     const getInput = useCallback((square: string): void => {        
         const output: string[][] = board.input(square); 
-        if (output[0].length >= 0) {
-            const move: {from: string, to: string} =  {from: "", to: ""}
-            let i: number = 0;
-            while (output[0].length > i) {
-                move.from = output[0][i];
-                i++;
-                move.to = output[0][i];
-                i++;
-                movePiece(move);
-            }
+        if (output[0].length > 0) {
+            movePiece(output[0])
         }
-        if (output[1].length >= 0) {
+        if (output[1].length > 0) {
             colorSquare(output[1], output[2]);
         }
     }, [board, colorSquare, movePiece]);
@@ -147,6 +167,8 @@ export default function ChessPage() {
             colorSquare(output[1], output[2]);
         }
     }, []);
+
+
 
     return(
         <figure className="board">
