@@ -7,6 +7,7 @@ export class Piece {
     private movementIncremental: boolean;
     private enPassantRight: boolean;
     private enPassantLeft: boolean; 
+    private waitingForPromotion: boolean;
 
     constructor(type: PieceType, player: number){
         this.type = type;
@@ -16,6 +17,7 @@ export class Piece {
         this.movementIncremental = this.setMovementIncremental();
         this.enPassantRight = false;
         this.enPassantLeft = false;
+        this.waitingForPromotion = false;
       }
 
     
@@ -84,13 +86,20 @@ export class Piece {
         return this.movementIncremental;
     }
 
-    public setEnPassantRightTrue(): void {
-        this.enPassantRight = true;
+    public setEnPassantRightTrue(): boolean {
+        if (this.type === PieceType.Pawn) {
+            this.enPassantRight = true;
+            return true
+        }
+        return false
     }
     
-    public setEnPassantLeftTrue(): void {
-        this.enPassantLeft = true;
-    }
+    public setEnPassantLeftTrue(): boolean {
+        if (this.type === PieceType.Pawn) {
+            this.enPassantLeft = true;
+            return true
+        }
+        return false    }
     
     public getEnPassantRight(): boolean {
         if (this.enPassantRight) {
@@ -116,6 +125,24 @@ export class Piece {
         } else {
             throw new Error("Illegal player: " + this.player)
         }
+    }
+
+    public setWaitingForPromotion(): boolean {
+        if (this.type === PieceType.Pawn) {
+            this.waitingForPromotion = true; 
+            return true;
+        }
+        return false;
+    } 
+
+    public promote(type: PieceType): boolean {
+        if (this.waitingForPromotion) {
+            this.type = type;
+            this.movementMatrix = this.setMovementMatrix();
+            this.movementIncremental = this.setMovementIncremental();
+            return true
+        }
+        return false
     }
 }
 
