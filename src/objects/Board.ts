@@ -121,6 +121,9 @@ export class Board {
         if (piece.getType() === PieceType.Pawn) {
             return this.getPawnMoves(moves, startingSquare, piece, player)
         }
+        if (piece.getType() === PieceType.King) {
+           moves.push(... this.getCastleMoves(input, player))
+        }
         
         
         let possibleMoveSquare: {row: number, column: number};
@@ -173,7 +176,6 @@ export class Board {
     }
 
     //execute selected move
-    //todo add special rulse for spesial cases
     private executeMove(input: string, selectedPiece: string): string[] {
         const oldSquare: {row: number, column: number} = this.boardCodeToNumObject(selectedPiece);
         const piece: Piece|null = this.boardstate[oldSquare.row][oldSquare.column];
@@ -222,9 +224,7 @@ export class Board {
                 return this.numObjectToBoardCode(possibleKing);
             } 
         })[0]
-        const kingExposed: boolean = this.getPieces(player * (-1))
-            .flatMap(opponentPiece => this.getMoves(opponentPiece, player * (-1)))
-            .some(square => king === square)
+        const kingExposed: boolean = this.squareIsAttacked(king, player)
 
         //resets board
         this.boardstate = boardMemory;
@@ -316,5 +316,129 @@ export class Board {
           this.functionMap.set(key, []);
         }
         this.functionMap.get(key)!.push(func);
-      }
+    }
+
+    private getCastleMoves(input: string, player: number): string[] {
+        const moves: string[] = [];
+        const moveTroughRight: string[] = [];
+        const moveTroughLeft: string[] = []; 
+        const startingSquare: {row: number, column: number} = this.boardCodeToNumObject(input);
+        
+        for (let i = -1; i > -4; i--) {
+            const checkSquare: {row: number, column: number} = {row: startingSquare.row, column: startingSquare.column + i};
+            if (this.boardstate[checkSquare.row][checkSquare.column] === null) {
+                moveTroughLeft.push(this.numObjectToBoardCode(checkSquare));
+            } else {
+                break;
+            }
+        }
+        const castleLeft: boolean = moveTroughLeft.length === 3 && !moveTroughLeft.some(square => this.squareIsAttacked(square, player))
+        
+        if (castleLeft) {
+            const castleLeftNumOjectKing: {row: number, column: number} = {row: startingSquare.row, column: startingSquare.column - 2};
+            const castleLeftNumOjectRookStart: {row: number, column: number} = {row: startingSquare.row, column: 0};
+            const castleLeftNumOjectRook: {row: number, column: number} = {row: startingSquare.row, column: startingSquare.column - 1};
+
+            moves.push(this.numObjectToBoardCode(castleLeftNumOjectKing));
+            this.addFunction(this.numObjectToBoardCode(castleLeftNumOjectKing), (output) => {
+                output[0].push(... [this.numObjectToBoardCode(castleLeftNumOjectRookStart), this.numObjectToBoardCode(castleLeftNumOjectRook)]);
+            })
+
+        }
+
+        // check squares 
+
+        for (let i = 1 ; i < 3; i++) {
+            const checkSquare: {row: number, column: number} = {row: startingSquare.row, column: startingSquare.column + i};
+            if (this.boardstate[checkSquare.row][checkSquare.column] === null) {
+                moveTroughRight.push(this.numObjectToBoardCode(checkSquare));
+            } else {
+                moveTroughRight.splice(0, moveTroughLeft.length);
+                break;
+            }
+        }
+        const castleRight: boolean = moveTroughRight.length === 2 && !moveTroughRight.some(square => this.squareIsAttacked(square, player))
+        
+        if (castleRight) {
+            const castleRightNumOjectKing: {row: number, column: number} = {row: startingSquare.row, column: startingSquare.column + 2};
+            const castleRightNumOjectRookStart: {row: number, column: number} = {row: startingSquare.row, column: 7};
+            const castleRightNumOjectRook: {row: number, column: number} = {row: startingSquare.row, column: startingSquare.column + 1};
+
+            moves.push(this.numObjectToBoardCode(castleRightNumOjectKing));
+            this.addFunction(this.numObjectToBoardCode(castleRightNumOjectKing), (output) => {
+                output[0].push(... [this.numObjectToBoardCode(castleRightNumOjectRookStart), this.numObjectToBoardCode(castleRightNumOjectRook)])
+            });
+
+        }
+
+        return moves;
+    }
+
+    private squareIsAttacked(checkSquare: string, player: number): boolean {
+        const square: {row: number, column: number} = this.boardCodeToNumObject(checkSquare);
+        const directions0: {direction:{row: number, column: number}, types: PieceType[]}[] = 
+            [{direction:{row: 1, column: 1}, types: [PieceType.King, PieceType.Queen, PieceType.Bishop]},
+            {direction:{row: 1, column: 0}, types: [PieceType.King, PieceType.Queen, PieceType.Rook]},
+            {direction:{row: 1, column: -1}, types: [PieceType.King, PieceType.Queen, PieceType.Bishop]},
+            {direction:{row: 0, column: 1}, types: [PieceType.King, PieceType.Queen, PieceType.Rook]},
+            {direction:{row: 0, column: -1}, types: [PieceType.King, PieceType.Queen, PieceType.Rook]},
+            {direction:{row: -1, column: 1}, types: [PieceType.King, PieceType.Queen, PieceType.Bishop]},
+            {direction:{row: -1, column: 0}, types: [PieceType.King, PieceType.Queen, PieceType.Rook]},
+            {direction:{row: -1, column: -1}, types: [PieceType.King, PieceType.Queen, PieceType.Bishop]},
+            {direction:{row: 1, column: 2}, types: [PieceType.Knight]},
+            {direction:{row: 1, column: -2}, types: [PieceType.Knight]},
+            {direction:{row: -1, column: 2}, types: [PieceType.Knight]},
+            {direction:{row: -1, column: -2}, types: [PieceType.Knight]},
+            {direction:{row: 2, column: 1}, types: [PieceType.Knight]},
+            {direction:{row: 2, column: -1}, types: [PieceType.Knight]},
+            {direction:{row: -2, column: 1}, types: [PieceType.Knight]},
+            {direction:{row: -2, column: -1}, types: [PieceType.Knight]},
+            {direction:{row: 1*(this.player), column: -1}, types: [PieceType.Pawn]},
+            {direction:{row: 1*(this.player), column: 1}, types: [PieceType.Pawn]}];
+        
+        for (const direction of directions0) {
+            const possibleOpponent: {row: number, column: number} = {row: square.row + direction.direction.row, column: square.column + direction.direction.column}
+            if (!this.squareOnBoard(possibleOpponent)) {
+                continue;
+            }
+            const piece: Piece|null = this.boardstate[possibleOpponent.row][possibleOpponent.column]
+            if (piece === null) {
+                continue;
+            }
+            if (piece.getPlayer() === player * (-1) && (direction.types.some(type => type === piece.getType()))) {
+                return true
+            }
+        }
+        
+        const directions1: {direction:{row: number, column: number}, types: PieceType[]}[]=
+            [{direction:{row: 1, column: 1}, types: [PieceType.Queen, PieceType.Bishop]},
+            {direction:{row: 1, column: 0}, types: [PieceType.Queen, PieceType.Rook]},
+            {direction:{row: 1, column: -1}, types: [PieceType.Queen, PieceType.Bishop]},
+            {direction:{row: 0, column: 1}, types: [PieceType.Queen, PieceType.Rook]},
+            {direction:{row: 0, column: -1}, types: [PieceType.Queen, PieceType.Rook]},
+            {direction:{row: -1, column: 1}, types: [PieceType.Queen, PieceType.Bishop]},
+            {direction:{row: -1, column: 0}, types: [PieceType.Queen, PieceType.Rook]},
+            {direction:{row: -1, column: -1}, types: [PieceType.Queen, PieceType.Bishop]}];
+        
+        for (const direction of directions1) {
+            let possibleOpponent: {row: number, column: number} = {row: square.row + direction.direction.row*2, column: square.column + direction.direction.column*2}
+            while(this.squareOnBoard(possibleOpponent)) {
+                const piece: Piece|null = this.boardstate[possibleOpponent.row][possibleOpponent.column]
+                if (piece === null) {
+                    possibleOpponent = {row: possibleOpponent.row + direction.direction.row, column: possibleOpponent.column+ direction.direction.column}
+                    continue;
+                }
+                if (piece.getPlayer() === player) {
+                    break;
+                }
+                if (piece.getPlayer() === player * (-1) && (direction.types.some(type => type === piece.getType()))) {
+                    return true
+                }
+                break;
+            }
+        }
+        return false
+    }
+
+    
 }
