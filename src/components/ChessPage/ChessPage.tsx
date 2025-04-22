@@ -1,10 +1,11 @@
 import "./ChessPage.css"
 import BoardSquare from "../BoardSquare/BoardSquare"
 import { Piece } from "../../objects/Piece"
-import { useCallback, useEffect, useMemo, useRef, useState } from "react"
+import { useCallback, useEffect, useRef, useState } from "react"
 import { PieceType } from "../../emums/Piece"
 import { Board } from "../../objects/Board"
-
+import PromotionView from "../PromotionView/PromotionView"
+import { isPieceType } from "../../emums/Piece"
 
 export default function ChessPage() {
     const [boardstate, setBoardstate] = useState<Map<string, { piece: Piece | null; color: string }>>(new Map([        
@@ -83,20 +84,54 @@ export default function ChessPage() {
     ]));
 
     const [board] = useState(() => new Board(boardstate));
-    
-    const movePiece = useCallback((move:{from: string, to: string}):void => {   
+
+    const [player, setPlayer] = useState(1);
+
+    const [displayPromotionView, setDisplayPromotionView] = useState(false);
+
+    const [PromotionViewSquare, setPromotionViewSquare] = useState("")
+
+    const movePiece = useCallback((moves: string[]):void => {   
         setBoardstate((boardstate) => {
-            
             const newBoardstate = new Map(boardstate);
-            const entry = newBoardstate.get(move.from)
-            if (!entry || !entry.piece) {
-                return boardstate
+            const move: {from: string, to: string} =  {from: "", to: ""}
+            let i: number = 0;
+
+            while (moves.length > i) {
+                move.from = moves[i];
+                i++;
+                move.to = moves[i];
+                i++;
+                if (move.from === "") {
+                    newBoardstate.set(move.to, {color: "#f0f0f", piece: null})
+                    continue;
+                }
+
+                const entry = newBoardstate.get(move.from)
+
+                if (!entry || !entry.piece) {
+                    console.warn(`Invalid move format: ${move}`);
+                    continue;
+                }
+
+                if (move.to.length > 2) {
+                    setPlayer(player * (-1))
+                    if (isPieceType(move.to)) {
+                        newBoardstate.set(move.from, {color: "#f0f0f", piece: new Piece(move.to as PieceType, entry.piece.getPlayer())});
+                    } else {
+                        throw console.error(move.to + " read as longer then two digits, but could not be cast to PieceType");
+                        
+                    }
+                    continue;
+                }
+                newBoardstate.set(move.to, {color: "#f0f0f", piece: entry?.piece})
+                newBoardstate.set(move.from, {color: "#f0f0f", piece: null})
             }
-            newBoardstate.set(move.to, {color: "#f0f0f", piece: entry?.piece})
-            newBoardstate.set(move.from, {color: "#f0f0f", piece: null})
+            setPlayer(player * (-1))
             return newBoardstate;
+
         });
-    },[])
+    },[setBoardstate, player])
 
 
     const colorSquare = useCallback((squaresNew: string[], squaresOld: string[]): void => {
@@ -118,25 +153,26 @@ export default function ChessPage() {
             }
             return newBoardstate;
         });
+    }, [setBoardstate])
+
+    const openPromotionView = useCallback((squares: string[]): void => {
+        setPromotionViewSquare(squares[0])
+        setDisplayPromotionView(true)
+
     }, [])
 
     const getInput = useCallback((square: string): void => {        
         const output: string[][] = board.input(square); 
-        if (output[0].length >= 0) {
-            const move: {from: string, to: string} =  {from: "", to: ""}
-            let i: number = 0;
-            while (output[0].length > i) {
-                move.from = output[0][i];
-                i++;
-                move.to = output[0][i];
-                i++;
-                movePiece(move);
-            }
+        if (output[0].length > 0) {
+            movePiece(output[0])
         }
-        if (output[1].length >= 0) {
+        if (output[1].length > 0) {
             colorSquare(output[1], output[2]);
         }
-    }, [board, colorSquare, movePiece]);
+        if (output[3].length > 0) {
+            openPromotionView(output[3]);
+        }
+    }, [board, colorSquare, movePiece, openPromotionView]);
 
     const firstRun = useRef(true);
 
@@ -148,18 +184,31 @@ export default function ChessPage() {
         }
     }, []);
 
+
+
     return(
-        <figure className="board">
-            {Array.from(boardstate.entries()).map(([id, { piece, color }]) => (
-                <BoardSquare 
-                    key={id}
-                    piece={piece} 
-                    color={color} 
-                    square={id} 
-                    clickAction={getInput} 
-                />
-            ))}
-            
-        </figure>
+        <div>
+            <figure className="board">
+                {Array.from(boardstate.entries()).map(([id, { piece, color }]) => (
+                    <BoardSquare 
+                        key={id}
+                        piece={piece} 
+                        color={color} 
+                        square={id} 
+                        clickAction={getInput} 
+                    />
+                ))}       
+            </figure>
+            <PromotionView 
+                player={player} 
+                display={displayPromotionView} 
+                setDisplay={setDisplayPromotionView} 
+                square={PromotionViewSquare}
+                sendInput={(square: string, pieceType: PieceType) => board.promotePawn(square, pieceType)}
+                changePiece={(square: string, pieceType: string) => movePiece([square, pieceType])}/>
+            <button onClick={() => setDisplayPromotionView(true)}></button>
+
+        </div>
+
     )
 }

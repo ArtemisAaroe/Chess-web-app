@@ -6,6 +6,7 @@ import ChessPage from "./components/ChessPage/ChessPage";
 
 
 
+
 function App() {
 
 
@@ -14,6 +15,7 @@ function App() {
   return (
     <>
       <ChessPage></ChessPage>
+      
     </>
   );
 

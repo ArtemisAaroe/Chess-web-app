@@ -5,7 +5,9 @@ export class Piece {
     private hasMoved: boolean;
     private movementMatrix: number[][];
     private movementIncremental: boolean;
-    private enPassant: boolean;
+    private enPassantRight: boolean;
+    private enPassantLeft: boolean; 
+    private waitingForPromotion: boolean;
 
     constructor(type: PieceType, player: number){
         this.type = type;
@@ -13,7 +15,9 @@ export class Piece {
         this.hasMoved = false;
         this.movementMatrix = this.setMovementMatrix();
         this.movementIncremental = this.setMovementIncremental();
-        this.enPassant = false;
+        this.enPassantRight = false;
+        this.enPassantLeft = false;
+        this.waitingForPromotion = false;
       }
 
     
@@ -21,7 +25,7 @@ export class Piece {
     private setMovementMatrix(): number[][] {
         switch (this.type) {
             case PieceType.Pawn:
-                return [[1*(this.player), -1], [1*(this.player), 0], [1*(this.player), 1], [2*(this.player), 0]];
+                return [[1*(this.player), -1], [1*(this.player), 1], [1*(this.player), 0], [2*(this.player), 0]];
             case PieceType.Bishop:
                 return [[1, 1], [1, -1], [-1, 1], [-1, -1]];
             case PieceType.Rook:
@@ -58,7 +62,8 @@ export class Piece {
 
     public moved(): void {
         this.hasMoved = true;
-        this.enPassant = false;
+        this.enPassantLeft = false;
+        this.enPassantRight = false;
     }
 
     public getType(): string {
@@ -81,12 +86,35 @@ export class Piece {
         return this.movementIncremental;
     }
 
-    public setEnPassantTrue(): void {
-        this.enPassant = true;
+    public setEnPassantRightTrue(): boolean {
+        if (this.type === PieceType.Pawn) {
+            this.enPassantRight = true;
+            return true
+        }
+        return false
     }
     
-    public getEnPassant(): boolean {
-        return this.enPassant;
+    public setEnPassantLeftTrue(): boolean {
+        if (this.type === PieceType.Pawn) {
+            this.enPassantLeft = true;
+            return true
+        }
+        return false    }
+    
+    public getEnPassantRight(): boolean {
+        if (this.enPassantRight) {
+            this.enPassantRight = false
+            return true
+        }
+        return this.enPassantRight;
+    }
+
+    public getEnPassantLeft(): boolean {
+        if (this.enPassantLeft) {
+            this.enPassantLeft = false
+            return true
+        }
+        return this.enPassantLeft;
     }
 
     public getPlayerColor(): string {
@@ -97,6 +125,24 @@ export class Piece {
         } else {
             throw new Error("Illegal player: " + this.player)
         }
+    }
+
+    public setWaitingForPromotion(): boolean {
+        if (this.type === PieceType.Pawn) {
+            this.waitingForPromotion = true; 
+            return true;
+        }
+        return false;
+    } 
+
+    public promote(type: PieceType): boolean {
+        if (this.waitingForPromotion) {
+            this.type = type;
+            this.movementMatrix = this.setMovementMatrix();
+            this.movementIncremental = this.setMovementIncremental();
+            return true
+        }
+        return false
     }
 }
 
