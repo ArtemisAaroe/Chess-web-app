@@ -3,7 +3,7 @@ This project is a work in progress.
 
 ## Features
 Basic interface
-Simplified chess ruleset
+Full chess ruleset
 
 ## Future Features
 Full chess ruleset
