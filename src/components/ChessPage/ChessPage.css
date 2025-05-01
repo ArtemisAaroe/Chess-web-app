@@ -2,5 +2,57 @@
     display: grid;
     grid-template-columns: repeat(8, 1fr);
     grid-template-rows: repeat(8, 1fr);
+    grid-row: span 8 / span 8;
+    grid-column: span 8 / span 8;
+    grid-row-start: 2;
+    grid-column-start: 2;
+    max-width: 800px;
 
 } 
+
+.board-boarder {
+    display: grid;
+    grid-template-columns: repeat(10, 1fr);
+    grid-template-rows: repeat(10, 1fr);
+    border: black 6px double;
+    max-width: 1000px;
+    min-width: 300px;
+    background: #550000;
+    /* background: #CCCCCC; */
+    /* background: #444444; */
+    /* background: #333333; */
+    /* background: repeating-linear-gradient(
+        0deg,
+        #8b5e3c, 
+        #8b5e3c 2px,
+        #a97142 4px,
+        #a97142 6px
+      );
+      background-size: 100% 100%;
+      box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.2);
+      filter: contrast(1.2) brightness(0.95); */
+}
+
+.background-in-game {
+    
+}
+
+.border-piece {
+    aspect-ratio: 1 / 1;
+    padding: 0;
+    display: flex;
+    justify-content: center; /* horizontal center */
+    align-items: center;     /* vertical center */
+    text-align: center;   
+    line-height: 1;
+}
+
+.border-piece h3 {
+    font-size: clamp(0.6rem, 2.5vmin, 5rem);
+    color: #FFD700;
+    -webkit-text-stroke: 0.5px rgb(0, 0, 0); 
+    font-family: Garamond, Georgia, 'Times New Roman', Times, serif;
+
+
+
+}

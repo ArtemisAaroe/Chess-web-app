@@ -7,46 +7,46 @@ export class Board {
     private mode: ModeType;
     private player: number;
     private moves: number;
-    private bufferList: string[];
+    private bufferListPieces: string[];
+    private bufferListMoves: string[];
     private selectedPiece: string;
     private functionMap: Map<string, Array<(arg: string[][]) => void>>;
 
     constructor(boardstate: Map<string, { piece: Piece | null; color: string }>) {
-        this.mode = ModeType.Start
-        this.player = 1
-        this.moves = 0
-        this.bufferList = []
+        this.mode = ModeType.Start;
+        this.player = 1;
+        this.moves = 0;
+        this.bufferListPieces = [];
+        this.bufferListMoves = [];
         this.selectedPiece = ""
         this.functionMap = new Map();
         for (const number of ["1", "2", "3", "4", "5", "6", "7", "8"]) {
-            const rowOfBoardstate: (Piece|null)[] = []
+            const rowOfBoardstate: (Piece|null)[] = [];
             for (const letter of ["A", "B", "C", "D", "E", "F", "G", "H"]) {
-                rowOfBoardstate.push(this.guaranteePieceOrNull(boardstate.get(letter + number)?.piece))
+                rowOfBoardstate.push(this.guaranteePieceOrNull(boardstate.get(letter + number)?.piece));
             }
             this.boardstate.push(rowOfBoardstate);
         }
     }
     // starts the game
     public start(): string[][] {
-        const output: string[][] = []
+        const output: string[][] = [[], [], [], [], [], []];
         this.mode = ModeType.PieceSelect;
-        output.push([])
-        output.push(this.getPieces(this.player))
-        output.push([])
-        this.bufferList = output[1]
+        output[2].push(... this.getPieces(this.player));
+        this.bufferListPieces = output[2];
         return output;
 
     }
 
     //takes input form the players and moves the game along
     public input(input: string): string[][] {
-        const output: string[][] = [[],[],[],[]]
-        if (!this.bufferList.includes(input)) {
+        const output: string[][] = [[], [], [], [], [], []]
+        if (!this.bufferListPieces.includes(input) && !this.bufferListMoves.includes(input)) {
             this.selectedPiece = "";
             this.mode = ModeType.PieceSelect;
             console.log("this.getPieces")
             //console.log(this.boardstate);
-            output[1].push(... this.getPieces(this.player));
+            output[2].push(... this.getPieces(this.player));
 
             
         } else if (this.mode === ModeType.PieceSelect) {
@@ -54,12 +54,11 @@ export class Board {
             this.selectedPiece = input;
             console.log("this.getMoves");
             //console.log ("mode: " + this.mode + " player: " + this.player + " moves: " + this.moves + " bufferList: " + this.bufferList + " selectedPiece: " + this.selectedPiece)
-            output[1].push(... this.getMoves(input, this.player));
+            output[4].push(... this.getMoves(input, this.player));
 
             
         } else if (this.mode === ModeType.MoveSelect) {
             this.mode = ModeType.PieceSelect;
-            
             
             console.log("this.executeMove")
             //console.log(this.boardstate)
@@ -67,16 +66,17 @@ export class Board {
             this.boardstate[square.row][square.column]?.moved();
             output[0].push(... this.executeMove(input, this.selectedPiece));
 
-            
+            console.log(this.functionMap)
             this.functionMap.get(input)?.forEach(func => func(output));
             this.functionMap = new Map();
+
 
             
             //console.log(this.boardstate)
             this.player = this.player * (-1);
             console.log(this.gameOver())
 
-            output[1].push(... this.getPieces(this.player));
+            output[2].push(... this.getPieces(this.player));
             this.moves += 1;
             this.selectedPiece = "";
             this.mode = ModeType.PieceSelect;
@@ -84,8 +84,10 @@ export class Board {
         } else {
             throw new Error("the state of this object is broken");
         }
-        output[2].push(... this.bufferList);
-        this.bufferList = output[1];
+        output[3].push(... this.bufferListPieces);
+        output[5].push(... this.bufferListMoves);
+        this.bufferListPieces = output[2];
+        this.bufferListMoves = output[4];
         return output;
     }
 
@@ -249,7 +251,7 @@ export class Board {
                     if (piece.getEnPassantLeft()) {
                         this.addFunction(this.numObjectToBoardCode(possibleMoveSquare), (output: string[][]) => {
                             this.boardstate[possibleMoveSquare.row + player * (-1)][possibleMoveSquare.column] = null;
-                            output[0].push(... ["", this.numObjectToBoardCode({row: possibleMoveSquare.row + player * (-1), column: possibleMoveSquare.column})])               
+                            output[0].push(... [this.numObjectToBoardCode({row: possibleMoveSquare.row + player * (-1), column: possibleMoveSquare.column}), ""])               
                         });
                     } else {
                         continue;
@@ -263,7 +265,7 @@ export class Board {
                     if (piece.getEnPassantRight()) {
                         this.addFunction(this.numObjectToBoardCode(possibleMoveSquare), (output: string[][]) => {
                             this.boardstate[possibleMoveSquare.row + player * (-1)][possibleMoveSquare.column] = null
-                            output[0].push(... [ "", this.numObjectToBoardCode({row: possibleMoveSquare.row + player * (-1), column: possibleMoveSquare.column})])                                 });
+                            output[0].push(... [this.numObjectToBoardCode({row: possibleMoveSquare.row + player * (-1), column: possibleMoveSquare.column}), ""])                                 });
                     } else {
                         continue;
                     }
@@ -301,7 +303,7 @@ export class Board {
             if (possibleMoveSquare.row === 0 || possibleMoveSquare.row === 7) {
                 this.addFunction(this.numObjectToBoardCode(possibleMoveSquare), (output) => {
                     this.boardstate[possibleMoveSquare.row][possibleMoveSquare.column] = new Piece(PieceType.Queen, piece.getPlayer());
-                    output[3].push(this.numObjectToBoardCode(possibleMoveSquare));
+                    output[1].push(this.numObjectToBoardCode(possibleMoveSquare));
                 });
             }
             moves.push(this.numObjectToBoardCode(possibleMoveSquare));  
@@ -314,7 +316,7 @@ export class Board {
         if (!this.functionMap.has(key)) {
           this.functionMap.set(key, []);
         }
-        this.functionMap.get(key)!.push(func);
+        this.functionMap.get(key)?.push(func);
     }
 
     private getCastleMoves(input: string, player: number): string[] {
@@ -337,12 +339,13 @@ export class Board {
             const castleLeftNumOjectKing: {row: number, column: number} = {row: startingSquare.row, column: startingSquare.column - 2};
             const castleLeftNumOjectRookStart: {row: number, column: number} = {row: startingSquare.row, column: 0};
             const castleLeftNumOjectRook: {row: number, column: number} = {row: startingSquare.row, column: startingSquare.column - 1};
-
+            
             moves.push(this.numObjectToBoardCode(castleLeftNumOjectKing));
             this.addFunction(this.numObjectToBoardCode(castleLeftNumOjectKing), (output) => {
                 this.boardstate[castleLeftNumOjectRook.row][castleLeftNumOjectRook.column] = this.boardstate[castleLeftNumOjectRookStart.row][castleLeftNumOjectRookStart.column];
                 this.boardstate[castleLeftNumOjectRookStart.row][castleLeftNumOjectRookStart.column] = null;
                 output[0].push(... [this.numObjectToBoardCode(castleLeftNumOjectRookStart), this.numObjectToBoardCode(castleLeftNumOjectRook)]);
+                
             })
 
         }
@@ -387,6 +390,7 @@ export class Board {
             {direction:{row: 0, column: -1}, types: [PieceType.Queen, PieceType.Rook], looping: true},
             {direction:{row: -1, column: 1}, types: [PieceType.Queen, PieceType.Bishop], looping: true},
             {direction:{row: -1, column: 0}, types: [PieceType.Queen, PieceType.Rook], looping: true},
+            {direction:{row: -1, column: -1}, types: [PieceType.Queen, PieceType.Bishop], looping: true},
             {direction:{row: 1, column: 1}, types: [PieceType.King], looping: false},
             {direction:{row: 1, column: 0}, types: [PieceType.King], looping: false},
             {direction:{row: 1, column: -1}, types: [PieceType.King], looping: false},
@@ -442,11 +446,10 @@ export class Board {
         const opponentHasMoves: boolean = this.getPieces(this.player)
         .some(piece => this.getMoves(piece, this.player).length > 0);
 
-        console.log(this.getPieces(this.player)
-        .map(piece => [ piece, this.getMoves(piece, this.player)]));
+        // console.log(this.getPieces(this.player)
+        // .map(piece => [ piece, this.getMoves(piece, this.player)]));
         
         if (opponentHasMoves) {
-            console.log("blubbe")
             return false;
         }
 

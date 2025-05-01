@@ -8,80 +8,80 @@ import PromotionView from "../PromotionView/PromotionView"
 import { isPieceType } from "../../emums/Piece"
 
 export default function ChessPage() {
-    const [boardstate, setBoardstate] = useState<Map<string, { piece: Piece | null; color: string }>>(new Map([        
-        ["A8", { piece: new Piece(PieceType.Rook, -1), color: "#f0f0f" }],
-        ["B8", { piece: new Piece(PieceType.Knight, -1), color: "#f0f0f" }],
-        ["C8", { piece: new Piece(PieceType.Bishop, -1), color: "#f0f0f" }],
-        ["D8", { piece: new Piece(PieceType.Queen, -1), color: "#f0f0f" }],
-        ["E8", { piece: new Piece(PieceType.King, -1), color: "#f0f0f" }],
-        ["F8", { piece: new Piece(PieceType.Bishop, -1), color: "#f0f0f" }],
-        ["G8", { piece: new Piece(PieceType.Knight, -1), color: "#f0f0f" }],
-        ["H8", { piece: new Piece(PieceType.Rook, -1), color: "#f0f0f" }],
+    const [boardstate, setBoardstate] = useState<Map<string, { piece: Piece | null; color: string; tabEnabled: boolean; dotEnabled: boolean }>>(new Map([
+        ["A8", { piece: new Piece(PieceType.Rook, -1), color: "black", tabEnabled: false, dotEnabled: false }],
+        ["B8", { piece: new Piece(PieceType.Knight, -1), color: "white", tabEnabled: false, dotEnabled: false }],
+        ["C8", { piece: new Piece(PieceType.Bishop, -1), color: "black", tabEnabled: false, dotEnabled: false }],
+        ["D8", { piece: new Piece(PieceType.Queen, -1), color: "white", tabEnabled: false, dotEnabled: false }],
+        ["E8", { piece: new Piece(PieceType.King, -1), color: "black", tabEnabled: false, dotEnabled: false }],
+        ["F8", { piece: new Piece(PieceType.Bishop, -1), color: "white", tabEnabled: false, dotEnabled: false }],
+        ["G8", { piece: new Piece(PieceType.Knight, -1), color: "black", tabEnabled: false, dotEnabled: false }],
+        ["H8", { piece: new Piece(PieceType.Rook, -1), color: "white", tabEnabled: false, dotEnabled: false }],
     
-        ["A7", { piece: new Piece(PieceType.Pawn, -1), color: "#f0f0f" }],
-        ["B7", { piece: new Piece(PieceType.Pawn, -1), color: "#f0f0f" }],
-        ["C7", { piece: new Piece(PieceType.Pawn, -1), color: "#f0f0f" }],
-        ["D7", { piece: new Piece(PieceType.Pawn, -1), color: "#f0f0f" }],
-        ["E7", { piece: new Piece(PieceType.Pawn, -1), color: "#f0f0f" }],
-        ["F7", { piece: new Piece(PieceType.Pawn, -1), color: "#f0f0f" }],
-        ["G7", { piece: new Piece(PieceType.Pawn, -1), color: "#f0f0f" }],
-        ["H7", { piece: new Piece(PieceType.Pawn, -1), color: "#f0f0f" }],
-
-        ["A6", { piece: null, color: "#f0f0f" }],
-        ["B6", { piece: null, color: "#f0f0f" }],
-        ["C6", { piece: null, color: "#f0f0f" }],
-        ["D6", { piece: null, color: "#f0f0f" }],
-        ["E6", { piece: null, color: "#f0f0f" }],
-        ["F6", { piece: null, color: "#f0f0f" }],
-        ["G6", { piece: null, color: "#f0f0f" }],
-        ["H6", { piece: null, color: "#f0f0f" }],
-
-        ["A5", { piece: null, color: "#f0f0f" }],
-        ["B5", { piece: null, color: "#f0f0f" }],
-        ["C5", { piece: null, color: "#f0f0f" }],
-        ["D5", { piece: null, color: "#f0f0f" }],
-        ["E5", { piece: null, color: "#f0f0f" }],
-        ["F5", { piece: null, color: "#f0f0f" }],
-        ["G5", { piece: null, color: "#f0f0f" }],
-        ["H5", { piece: null, color: "#f0f0f" }],
-
-        ["A4", { piece: null, color: "#f0f0f" }],
-        ["B4", { piece: null, color: "#f0f0f" }],
-        ["C4", { piece: null, color: "#f0f0f" }],
-        ["D4", { piece: null, color: "#f0f0f" }],
-        ["E4", { piece: null, color: "#f0f0f" }],
-        ["F4", { piece: null, color: "#f0f0f" }],
-        ["G4", { piece: null, color: "#f0f0f" }],
-        ["H4", { piece: null, color: "#f0f0f" }],
-
-        ["A3", { piece: null, color: "#f0f0f" }],
-        ["B3", { piece: null, color: "#f0f0f" }],
-        ["C3", { piece: null, color: "#f0f0f" }],
-        ["D3", { piece: null, color: "#f0f0f" }],
-        ["E3", { piece: null, color: "#f0f0f" }],
-        ["F3", { piece: null, color: "#f0f0f" }],
-        ["G3", { piece: null, color: "#f0f0f" }],
-        ["H3", { piece: null, color: "#f0f0f" }],
+        ["A7", { piece: new Piece(PieceType.Pawn, -1), color: "white", tabEnabled: false, dotEnabled: false }],
+        ["B7", { piece: new Piece(PieceType.Pawn, -1), color: "black", tabEnabled: false, dotEnabled: false }],
+        ["C7", { piece: new Piece(PieceType.Pawn, -1), color: "white", tabEnabled: false, dotEnabled: false }],
+        ["D7", { piece: new Piece(PieceType.Pawn, -1), color: "black", tabEnabled: false, dotEnabled: false }],
+        ["E7", { piece: new Piece(PieceType.Pawn, -1), color: "white", tabEnabled: false, dotEnabled: false }],
+        ["F7", { piece: new Piece(PieceType.Pawn, -1), color: "black", tabEnabled: false, dotEnabled: false }],
+        ["G7", { piece: new Piece(PieceType.Pawn, -1), color: "white", tabEnabled: false, dotEnabled: false }],
+        ["H7", { piece: new Piece(PieceType.Pawn, -1), color: "black", tabEnabled: false, dotEnabled: false }],
     
-        ["A2", { piece: new Piece(PieceType.Pawn, 1), color: "#f0f0f" }],
-        ["B2", { piece: new Piece(PieceType.Pawn, 1), color: "#f0f0f" }],
-        ["C2", { piece: new Piece(PieceType.Pawn, 1), color: "#f0f0f" }],
-        ["D2", { piece: new Piece(PieceType.Pawn, 1), color: "#f0f0f" }],
-        ["E2", { piece: new Piece(PieceType.Pawn, 1), color: "#f0f0f" }],
-        ["F2", { piece: new Piece(PieceType.Pawn, 1), color: "#f0f0f" }],
-        ["G2", { piece: new Piece(PieceType.Pawn, 1), color: "#f0f0f" }],
-        ["H2", { piece: new Piece(PieceType.Pawn, 1), color: "#f0f0f" }],
+        ["A6", { piece: null, color: "black", tabEnabled: false, dotEnabled: false }],
+        ["B6", { piece: null, color: "white", tabEnabled: false, dotEnabled: false }],
+        ["C6", { piece: null, color: "black", tabEnabled: false, dotEnabled: false }],
+        ["D6", { piece: null, color: "white", tabEnabled: false, dotEnabled: false }],
+        ["E6", { piece: null, color: "black", tabEnabled: false, dotEnabled: false }],
+        ["F6", { piece: null, color: "white", tabEnabled: false, dotEnabled: false }],
+        ["G6", { piece: null, color: "black", tabEnabled: false, dotEnabled: false }],
+        ["H6", { piece: null, color: "white", tabEnabled: false, dotEnabled: false }],
     
-        ["A1", { piece: new Piece(PieceType.Rook, 1), color: "#f0f0f" }],
-        ["B1", { piece: new Piece(PieceType.Knight, 1), color: "#f0f0f" }],
-        ["C1", { piece: new Piece(PieceType.Bishop, 1), color: "#f0f0f" }],
-        ["D1", { piece: new Piece(PieceType.Queen, 1), color: "#f0f0f" }],
-        ["E1", { piece: new Piece(PieceType.King, 1), color: "#f0f0f" }],
-        ["F1", { piece: new Piece(PieceType.Bishop, 1), color: "#f0f0f" }],
-        ["G1", { piece: new Piece(PieceType.Knight, 1), color: "#f0f0f" }],
-        ["H1", { piece: new Piece(PieceType.Rook, 1), color: "#f0f0f" }],
+        ["A5", { piece: null, color: "white", tabEnabled: false, dotEnabled: false }],
+        ["B5", { piece: null, color: "black", tabEnabled: false, dotEnabled: false }],
+        ["C5", { piece: null, color: "white", tabEnabled: false, dotEnabled: false }],
+        ["D5", { piece: null, color: "black", tabEnabled: false, dotEnabled: false }],
+        ["E5", { piece: null, color: "white", tabEnabled: false, dotEnabled: false }],
+        ["F5", { piece: null, color: "black", tabEnabled: false, dotEnabled: false }],
+        ["G5", { piece: null, color: "white", tabEnabled: false, dotEnabled: false }],
+        ["H5", { piece: null, color: "black", tabEnabled: false, dotEnabled: false }],
     
+        ["A4", { piece: null, color: "black", tabEnabled: false, dotEnabled: false }],
+        ["B4", { piece: null, color: "white", tabEnabled: false, dotEnabled: false }],
+        ["C4", { piece: null, color: "black", tabEnabled: false, dotEnabled: false }],
+        ["D4", { piece: null, color: "white", tabEnabled: false, dotEnabled: false }],
+        ["E4", { piece: null, color: "black", tabEnabled: false, dotEnabled: false }],
+        ["F4", { piece: null, color: "white", tabEnabled: false, dotEnabled: false }],
+        ["G4", { piece: null, color: "black", tabEnabled: false, dotEnabled: false }],
+        ["H4", { piece: null, color: "white", tabEnabled: false, dotEnabled: false }],
+    
+        ["A3", { piece: null, color: "white", tabEnabled: false, dotEnabled: false }],
+        ["B3", { piece: null, color: "black", tabEnabled: false, dotEnabled: false }],
+        ["C3", { piece: null, color: "white", tabEnabled: false, dotEnabled: false }],
+        ["D3", { piece: null, color: "black", tabEnabled: false, dotEnabled: false }],
+        ["E3", { piece: null, color: "white", tabEnabled: false, dotEnabled: false }],
+        ["F3", { piece: null, color: "black", tabEnabled: false, dotEnabled: false }],
+        ["G3", { piece: null, color: "white", tabEnabled: false, dotEnabled: false }],
+        ["H3", { piece: null, color: "black", tabEnabled: false, dotEnabled: false }],
+    
+        ["A2", { piece: new Piece(PieceType.Pawn, 1), color: "black", tabEnabled: false, dotEnabled: false }],
+        ["B2", { piece: new Piece(PieceType.Pawn, 1), color: "white", tabEnabled: false, dotEnabled: false }],
+        ["C2", { piece: new Piece(PieceType.Pawn, 1), color: "black", tabEnabled: false, dotEnabled: false }],
+        ["D2", { piece: new Piece(PieceType.Pawn, 1), color: "white", tabEnabled: false, dotEnabled: false }],
+        ["E2", { piece: new Piece(PieceType.Pawn, 1), color: "black", tabEnabled: false, dotEnabled: false }],
+        ["F2", { piece: new Piece(PieceType.Pawn, 1), color: "white", tabEnabled: false, dotEnabled: false }],
+        ["G2", { piece: new Piece(PieceType.Pawn, 1), color: "black", tabEnabled: false, dotEnabled: false }],
+        ["H2", { piece: new Piece(PieceType.Pawn, 1), color: "white", tabEnabled: false, dotEnabled: false }],
+    
+        ["A1", { piece: new Piece(PieceType.Rook, 1), color: "white", tabEnabled: false, dotEnabled: false }],
+        ["B1", { piece: new Piece(PieceType.Knight, 1), color: "black", tabEnabled: false, dotEnabled: false }],
+        ["C1", { piece: new Piece(PieceType.Bishop, 1), color: "white", tabEnabled: false, dotEnabled: false }],
+        ["D1", { piece: new Piece(PieceType.Queen, 1), color: "black", tabEnabled: false, dotEnabled: false }],
+        ["E1", { piece: new Piece(PieceType.King, 1), color: "white", tabEnabled: false, dotEnabled: false }],
+        ["F1", { piece: new Piece(PieceType.Bishop, 1), color: "black", tabEnabled: false, dotEnabled: false }],
+        ["G1", { piece: new Piece(PieceType.Knight, 1), color: "white", tabEnabled: false, dotEnabled: false }],
+        ["H1", { piece: new Piece(PieceType.Rook, 1), color: "black", tabEnabled: false, dotEnabled: false }],
     ]));
+    
 
     const [board] = useState(() => new Board(boardstate));
 
@@ -102,30 +102,47 @@ export default function ChessPage() {
                 i++;
                 move.to = moves[i];
                 i++;
-                if (move.from === "") {
-                    newBoardstate.set(move.to, {color: "#f0f0f", piece: null})
-                    continue;
+                const entryFrom = newBoardstate.get(move.from)
+                const entryTo = newBoardstate.get(move.to)
+                if (!entryFrom || !entryFrom.piece) {
+                    throw console.error(`Invalid move format, expected mistake in .from: ${move.from}`);
+                    
                 }
-
-                const entry = newBoardstate.get(move.from)
-
-                if (!entry || !entry.piece) {
-                    console.warn(`Invalid move format: ${move}`);
+                if (move.to === "") {
+                    newBoardstate.set(move.to, 
+                        {color: entryFrom.color, 
+                        piece: null, 
+                        tabEnabled: entryFrom.tabEnabled, 
+                        dotEnabled: entryFrom.dotEnabled})
                     continue;
                 }
 
                 if (move.to.length > 2) {
                     setPlayer(player * (-1))
                     if (isPieceType(move.to)) {
-                        newBoardstate.set(move.from, {color: "#f0f0f", piece: new Piece(move.to as PieceType, entry.piece.getPlayer())});
+                        newBoardstate.set(move.from, {
+                            color: entryFrom.color, 
+                            piece: new Piece(move.to as PieceType, entryFrom.piece.getPlayer()), 
+                            tabEnabled: entryFrom.tabEnabled, 
+                            dotEnabled: entryFrom.dotEnabled});
                     } else {
-                        throw console.error(move.to + " read as longer then two digits, but could not be cast to PieceType");
-                        
+                        throw console.error(move.to + " read as longer then two digits, but could not be cast to PieceType");   
                     }
                     continue;
                 }
-                newBoardstate.set(move.to, {color: "#f0f0f", piece: entry?.piece})
-                newBoardstate.set(move.from, {color: "#f0f0f", piece: null})
+                if (!entryTo) {
+                    throw console.error(`Invalid move format, expected mistake in .to: ${move}`);
+                }
+                newBoardstate.set(move.to, 
+                    {color: entryTo.color, 
+                    piece: entryFrom.piece,
+                    tabEnabled: entryTo.tabEnabled,
+                    dotEnabled: entryTo.dotEnabled})
+                newBoardstate.set(move.from, 
+                    {color: entryFrom.color, 
+                    piece: null,
+                    tabEnabled: entryFrom.tabEnabled,
+                    dotEnabled: entryFrom.dotEnabled})
             }
             setPlayer(player * (-1))
             return newBoardstate;
@@ -133,46 +150,63 @@ export default function ChessPage() {
         });
     },[setBoardstate, player])
 
-
-    const colorSquare = useCallback((squaresNew: string[], squaresOld: string[]): void => {
+    const updateUIIndicators = useCallback((piecesOnSquare: string[], deselectSquares: string[], possibleMoves: string[], deselectMoves: string[]): void=> {
         setBoardstate((boardstate) => {
-            const newBoardstate = new Map(boardstate)
-            for (const square of squaresOld) {
+            const newBoardstate = new Map(boardstate);
+            for (const square of deselectSquares) {
                 const entry = newBoardstate.get(square)
                 if (!entry) {
                     continue
                 }
-                newBoardstate.set(square, {color: "#f0f0f0", piece: entry?.piece})
-            }
-            for (const square of squaresNew) {
+                newBoardstate.set(square, {color: entry.color, piece: entry?.piece, tabEnabled: false, dotEnabled: entry.dotEnabled})
+            }          
+            for (const square of deselectMoves) {
                 const entry = newBoardstate.get(square)
                 if (!entry) {
                     continue
                 }
-                newBoardstate.set(square, {color: "#FFFF00", piece: entry?.piece})
+                newBoardstate.set(square, {color: entry.color, piece: entry?.piece, tabEnabled: false, dotEnabled: false})
             }
-            return newBoardstate;
+            for (const square of piecesOnSquare) {
+                const entry = newBoardstate.get(square)
+                if (!entry) {
+                    continue
+                }
+                newBoardstate.set(square, {color: entry.color, piece: entry?.piece, tabEnabled: true, dotEnabled: entry.dotEnabled})
+            }
+            for (const square of possibleMoves) {
+                const entry = newBoardstate.get(square)
+                if (!entry) {
+                    continue
+                }
+                newBoardstate.set(square, {color: entry.color, piece: entry?.piece, tabEnabled: true, dotEnabled: true})
+            }
+            return newBoardstate
         });
     }, [setBoardstate])
 
     const openPromotionView = useCallback((squares: string[]): void => {
         setPromotionViewSquare(squares[0])
         setDisplayPromotionView(true)
-
     }, [])
 
-    const getInput = useCallback((square: string): void => {        
+    //output[0] = move
+    //output[1] = promotion
+    //output[2] = tabselect
+    //output[3] = tabdeselect
+    //output[4] = dotselect
+    //output[5] = dotdeselect
+    const getInput = useCallback((square: string): void => {   
         const output: string[][] = board.input(square); 
+        console.log(output)     
         if (output[0].length > 0) {
-            movePiece(output[0])
+            movePiece(output[0]);
         }
+        updateUIIndicators(output[2], output[3], output[4], output[5]);
         if (output[1].length > 0) {
-            colorSquare(output[1], output[2]);
+            openPromotionView(output[1]);
         }
-        if (output[3].length > 0) {
-            openPromotionView(output[3]);
-        }
-    }, [board, colorSquare, movePiece, openPromotionView]);
+    }, [board, movePiece,updateUIIndicators, openPromotionView]);
 
     const firstRun = useRef(true);
 
@@ -180,25 +214,49 @@ export default function ChessPage() {
         if (firstRun.current) {
             firstRun.current = false;
             const output: string[][] = board.start();
-            colorSquare(output[1], output[2]);
+            updateUIIndicators(output[2], output[3], output[4], output[5]);
         }
-    }, []);
+    }, [updateUIIndicators]);
 
 
 
     return(
-        <div>
-            <figure className="board">
-                {Array.from(boardstate.entries()).map(([id, { piece, color }]) => (
-                    <BoardSquare 
-                        key={id}
-                        piece={piece} 
-                        color={color} 
-                        square={id} 
-                        clickAction={getInput} 
-                    />
-                ))}       
-            </figure>
+        <div className="background-in-game">
+            <div className="board-boarder" role="grid" aria-label="chessboard with markers for rows and columns">
+                {Array.from(["", "A", "B", "C", "D", "E", "F", "G", "H", "",
+                    "8", "8", "7", "7", "6", "6", "5", "5", "4", "4",
+                    "3", "3", "2", "2", "1", "1", "", "A", "B", "C",
+                    "D", "E", "F", "G", "H", ""
+                    ].entries()).map(([key, string]) => (
+                        string === "" ? (
+                            <div 
+                                key={key}
+                                className="boarder-piece"
+                                aria-label="corner piece"/>
+                        ) : (
+                            <div 
+                                key={key}
+                                className="border-piece" 
+                                aria-label={/^[0-9]$/.test(string) ? `row: ${string}` : `column: ${string}`}>
+                                <h3>{string}</h3>
+                            </div>
+                        )
+                    ))} 
+                <div className="board" role="gird" aria-label="chessboard">
+                    {Array.from(boardstate.entries()).map(([id, { piece, color, tabEnabled, dotEnabled }]) => (
+                        <BoardSquare 
+                            key={id}
+                            piece={piece} 
+                            color={color} 
+                            square={id} 
+                            label={id}
+                            clickAction={getInput} 
+                            tabEnabled={tabEnabled} 
+                            dotEnabled={dotEnabled} 
+                        />
+                    ))}       
+                </div>
+            </div>
             <PromotionView 
                 player={player} 
                 display={displayPromotionView} 
@@ -206,7 +264,7 @@ export default function ChessPage() {
                 square={PromotionViewSquare}
                 sendInput={(square: string, pieceType: PieceType) => board.promotePawn(square, pieceType)}
                 changePiece={(square: string, pieceType: string) => movePiece([square, pieceType])}/>
-            <button onClick={() => setDisplayPromotionView(true)}></button>
+
 
         </div>
 
