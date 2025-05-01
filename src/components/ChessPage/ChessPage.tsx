@@ -1,11 +1,13 @@
 import "./ChessPage.css"
 import BoardSquare from "../BoardSquare/BoardSquare"
+import StopWatch from "../StopWatch/StopWatch"
 import { Piece } from "../../objects/Piece"
 import { useCallback, useEffect, useRef, useState } from "react"
 import { PieceType } from "../../emums/Piece"
 import { Board } from "../../objects/Board"
 import PromotionView from "../PromotionView/PromotionView"
 import { isPieceType } from "../../emums/Piece"
+
 
 export default function ChessPage() {
     const [boardstate, setBoardstate] = useState<Map<string, { piece: Piece | null; color: string; tabEnabled: boolean; dotEnabled: boolean }>>(new Map([
@@ -150,7 +152,7 @@ export default function ChessPage() {
         });
     },[setBoardstate, player])
 
-    const updateUIIndicators = useCallback((piecesOnSquare: string[], deselectSquares: string[], possibleMoves: string[], deselectMoves: string[]): void=> {
+    const updateUIIndicators = useCallback((piecesOnSquare: string[], deselectSquares: string[], possibleMoves: string[], deselectMoves: string[]): void => {
         setBoardstate((boardstate) => {
             const newBoardstate = new Map(boardstate);
             for (const square of deselectSquares) {
@@ -257,6 +259,7 @@ export default function ChessPage() {
                     ))}       
                 </div>
             </div>
+            <StopWatch player={player}/>
             <PromotionView 
                 player={player} 
                 display={displayPromotionView} 
