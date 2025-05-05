@@ -18,6 +18,10 @@
     max-width: 1000px;
     min-width: 300px;
     background: #550000;
+    grid-row-start: 2;
+    grid-column-start: 1;
+    grid-row: span 3 / span 3;
+    grid-column: span 3 / span 3;
     /* background: #CCCCCC; */
     /* background: #444444; */
     /* background: #333333; */
@@ -34,7 +38,10 @@
 }
 
 .background-in-game {
-    
+    display: grid;
+    grid-template-rows: 0.5fr repeat(4, 1fr);
+    grid-template-columns: repeat(5, 1fr);
+    gap: 1vw;
 }
 
 .border-piece {
@@ -52,7 +59,9 @@
     color: #FFD700;
     -webkit-text-stroke: 0.5px rgb(0, 0, 0); 
     font-family: Garamond, Georgia, 'Times New Roman', Times, serif;
+}
 
-
-
+.game-banner {
+    grid-row: span 1 / span 1;
+    grid-column: span 5 / span 5;
 }

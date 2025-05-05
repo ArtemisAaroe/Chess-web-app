@@ -27,17 +27,23 @@ body {
   height: 100%;
   width: 100%;
   margin: 0px;
+  background-color: #242424;
+
 }
 
 h1 {
+  color: #FFD700;
   font-size: 3.2em;
   line-height: 1.1;
+  font-family: Garamond, Georgia, 'Times New Roman', Times, serif;
+
 }
 
 h2 {
   color: #FFD700;
   -webkit-text-stroke: 0.5px rgb(0, 0, 0); 
-  font-family: Garamond, Georgia, 'Times New Roman', Times, serif;}
+  font-family: Garamond, Georgia, 'Times New Roman', Times, serif;
+}
 
 button {
   border-radius: 8px;

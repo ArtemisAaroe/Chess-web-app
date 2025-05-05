@@ -7,6 +7,7 @@ import { PieceType } from "../../emums/Piece"
 import { Board } from "../../objects/Board"
 import PromotionView from "../PromotionView/PromotionView"
 import { isPieceType } from "../../emums/Piece"
+import { ChessType } from "../../emums/Chess"
 
 
 export default function ChessPage() {
@@ -92,6 +93,10 @@ export default function ChessPage() {
     const [displayPromotionView, setDisplayPromotionView] = useState(false);
 
     const [PromotionViewSquare, setPromotionViewSquare] = useState("")
+
+    const whitePlayer: string = "cat"
+    const blackPlayer: string = "moon";
+    const chessStyle: ChessType = ChessType.Classical;
 
     const movePiece = useCallback((moves: string[]):void => {   
         setBoardstate((boardstate) => {
@@ -224,6 +229,11 @@ export default function ChessPage() {
 
     return(
         <div className="background-in-game">
+            <div className="game-banner">
+                <h1>{chessStyle} Chess</h1>
+                <h2>{whitePlayer} vs {blackPlayer}</h2>
+            </div>
+
             <div className="board-boarder" role="grid" aria-label="chessboard with markers for rows and columns">
                 {Array.from(["", "A", "B", "C", "D", "E", "F", "G", "H", "",
                     "8", "8", "7", "7", "6", "6", "5", "5", "4", "4",
@@ -259,7 +269,7 @@ export default function ChessPage() {
                     ))}       
                 </div>
             </div>
-            <StopWatch player={player}/>
+            <StopWatch player={player} chessType={chessStyle}/>
             <PromotionView 
                 player={player} 
                 display={displayPromotionView} 
