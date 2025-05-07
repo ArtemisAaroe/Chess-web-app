@@ -135,7 +135,7 @@ export default function ChessPage() {
                     } else {
                         throw console.error(move.to + " read as longer then two digits, but could not be cast to PieceType");   
                     }
-                    continue;
+                    continue;shapes
                 }
                 if (!entryTo) {
                     throw console.error(`Invalid move format, expected mistake in .to: ${move}`);
@@ -229,10 +229,10 @@ export default function ChessPage() {
 
     return(
         <div className="background-in-game">
-            <div className="game-banner">
+            <header className="game-banner">
                 <h1>{chessStyle} Chess</h1>
                 <h2>{whitePlayer} vs {blackPlayer}</h2>
-            </div>
+            </header>
 
             <div className="board-boarder" role="grid" aria-label="chessboard with markers for rows and columns">
                 {Array.from(["", "A", "B", "C", "D", "E", "F", "G", "H", "",
@@ -269,7 +269,9 @@ export default function ChessPage() {
                     ))}       
                 </div>
             </div>
-            <StopWatch player={player} chessType={chessStyle}/>
+                <StopWatch player={player} chessType={chessStyle}/>
+
+            
             <PromotionView 
                 player={player} 
                 display={displayPromotionView} 
@@ -277,8 +279,6 @@ export default function ChessPage() {
                 square={PromotionViewSquare}
                 sendInput={(square: string, pieceType: PieceType) => board.promotePawn(square, pieceType)}
                 changePiece={(square: string, pieceType: string) => movePiece([square, pieceType])}/>
-
-
         </div>
 
     )

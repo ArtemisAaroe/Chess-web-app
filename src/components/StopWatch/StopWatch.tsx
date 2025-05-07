@@ -22,10 +22,11 @@ export default function StopWatch({player, chessType, whiteName, blackName}: sto
     const [blackTime, setBlackTime] = useState(startingTime)
     const [whiteRound, setWhiteRound] = useState(1);
     const [blackRound, setBlackRound] = useState(0);
+    const classicExtraTime: number = 1800;
 
     const displayTime = useCallback((time: number): string => {
         return `${String(Math.floor(time/3600)).padStart(2, "0")}:
-            ${String(Math.floor(time/60)).padStart(2, "0")}:
+            ${String(Math.floor((time%3600)/60)).padStart(2, "0")}:
             ${String(time%60).padStart(2, "0")}`;
     }, [])
 
@@ -62,11 +63,21 @@ export default function StopWatch({player, chessType, whiteName, blackName}: sto
     if (prevPlayer == null || prevPlayer === player) return
 
         if (player === 1) {
-            setBlackTime(prev => prev + standardAddTime)
-            setWhiteRound(prev => prev + 1)
+            setWhiteRound(prevWhiteRound => {
+                const nextWhiteRound = prevWhiteRound + 1;
+                setBlackTime(prevBlackTime => prevBlackTime + standardAddTime + 
+                    ((chessType === ChessType.Classical && nextWhiteRound === (40 + 1)) ? classicExtraTime : 0)
+                );
+                return nextWhiteRound
+            });
         } else {
-            setWhiteTime(prev => prev + standardAddTime)
-            setBlackRound(prev => prev + 1)
+            setBlackRound(prevBlackRound => {
+                const nextBlackRound = prevBlackRound + 1;
+                setWhiteTime(prevWhiteTime => prevWhiteTime + standardAddTime + 
+                    ((chessType === ChessType.Classical && nextBlackRound === 40) ? classicExtraTime : 0)
+                );
+                return nextBlackRound;
+            });
         }
     }, [player])
 
