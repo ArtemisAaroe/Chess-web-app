@@ -1,48 +1,49 @@
 .board {
     display: grid;
+    width: 100%;
+    aspect-ratio: 1 / 1;       
     grid-template-columns: repeat(8, 1fr);
     grid-template-rows: repeat(8, 1fr);
     grid-row: span 8 / span 8;
     grid-column: span 8 / span 8;
     grid-row-start: 2;
-    grid-column-start: 2;
-    max-width: 800px;
+    grid-column-start: 2;;
 
 } 
 
 .board-boarder {
     display: grid;
+    width: 100%;
+    aspect-ratio: 1 / 1;       
     grid-template-columns: repeat(10, 1fr);
     grid-template-rows: repeat(10, 1fr);
     border: black 6px double;
-    max-width: 1000px;
+    max-height: 100vh;
+    max-width: 100vw;
     min-width: 300px;
     background: #550000;
-    /* background: #CCCCCC; */
-    /* background: #444444; */
-    /* background: #333333; */
-    /* background: repeating-linear-gradient(
-        0deg,
-        #8b5e3c, 
-        #8b5e3c 2px,
-        #a97142 4px,
-        #a97142 6px
-      );
-      background-size: 100% 100%;
-      box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.2);
-      filter: contrast(1.2) brightness(0.95); */
+    grid-area: board;
 }
 
 .background-in-game {
-    
+    display: grid;
+    grid-template-columns: repeat(5, auto);
+    grid-template-rows: repeat(5, auto);
+    grid-template-areas: 
+        "game-banner game-banner game-banner game-banner game-banner"
+        "board board board clock clock"
+        "board board board . ."
+        "board board board . ."
+        ". . . . .";
+    gap: 1vw;
 }
 
 .border-piece {
     aspect-ratio: 1 / 1;
     padding: 0;
     display: flex;
-    justify-content: center; /* horizontal center */
-    align-items: center;     /* vertical center */
+    justify-content: center; 
+    align-items: center;     
     text-align: center;   
     line-height: 1;
 }
@@ -52,7 +53,25 @@
     color: #FFD700;
     -webkit-text-stroke: 0.5px rgb(0, 0, 0); 
     font-family: Garamond, Georgia, 'Times New Roman', Times, serif;
+}
 
+.game-banner {
+    grid-area: game-banner;
+}
 
-
+@media(max-width: 1200px) {
+    .background-in-game {
+        display: grid;
+        width: 100%;
+        max-width: 900px;    
+        margin: 0 auto;    
+        grid-template-rows: repeat(5, auto);
+        grid-template-columns: 1fr;
+        grid-template-areas: 
+            "game-banner"
+            "clock"
+            "board"
+            "board"
+            "board";
+    }
 }

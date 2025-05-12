@@ -1,0 +1,19 @@
+.clock {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    grid-template-rows: repeat(2, 1fr);
+    background: #550000;
+    border-radius: 10px;
+    border: black solid 2px;
+    grid-area: clock
+    }
+
+.highlight-time {
+    background-color: #FFD700;
+    color: #FFFFFF;
+    text-shadow: 0 0 1px #222222;
+    margin-right: 2vw;
+    margin-left: 2vw;
+    border-radius: 10px;
+}
+

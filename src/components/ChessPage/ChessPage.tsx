@@ -1,11 +1,14 @@
 import "./ChessPage.css"
 import BoardSquare from "../BoardSquare/BoardSquare"
+import StopWatch from "../StopWatch/StopWatch"
 import { Piece } from "../../objects/Piece"
 import { useCallback, useEffect, useRef, useState } from "react"
 import { PieceType } from "../../emums/Piece"
 import { Board } from "../../objects/Board"
 import PromotionView from "../PromotionView/PromotionView"
 import { isPieceType } from "../../emums/Piece"
+import { ChessType } from "../../emums/Chess"
+
 
 export default function ChessPage() {
     const [boardstate, setBoardstate] = useState<Map<string, { piece: Piece | null; color: string; tabEnabled: boolean; dotEnabled: boolean }>>(new Map([
@@ -91,6 +94,10 @@ export default function ChessPage() {
 
     const [PromotionViewSquare, setPromotionViewSquare] = useState("")
 
+    const whitePlayer: string = "cat"
+    const blackPlayer: string = "moon";
+    const chessStyle: ChessType = ChessType.Classical;
+
     const movePiece = useCallback((moves: string[]):void => {   
         setBoardstate((boardstate) => {
             const newBoardstate = new Map(boardstate);
@@ -150,7 +157,7 @@ export default function ChessPage() {
         });
     },[setBoardstate, player])
 
-    const updateUIIndicators = useCallback((piecesOnSquare: string[], deselectSquares: string[], possibleMoves: string[], deselectMoves: string[]): void=> {
+    const updateUIIndicators = useCallback((piecesOnSquare: string[], deselectSquares: string[], possibleMoves: string[], deselectMoves: string[]): void => {
         setBoardstate((boardstate) => {
             const newBoardstate = new Map(boardstate);
             for (const square of deselectSquares) {
@@ -222,6 +229,11 @@ export default function ChessPage() {
 
     return(
         <div className="background-in-game">
+            <header className="game-banner">
+                <h1>{chessStyle} Chess</h1>
+                <h2>{whitePlayer} vs {blackPlayer}</h2>
+            </header>
+
             <div className="board-boarder" role="grid" aria-label="chessboard with markers for rows and columns">
                 {Array.from(["", "A", "B", "C", "D", "E", "F", "G", "H", "",
                     "8", "8", "7", "7", "6", "6", "5", "5", "4", "4",
@@ -257,6 +269,9 @@ export default function ChessPage() {
                     ))}       
                 </div>
             </div>
+                <StopWatch player={player} chessType={chessStyle}/>
+
+            
             <PromotionView 
                 player={player} 
                 display={displayPromotionView} 
@@ -264,8 +279,6 @@ export default function ChessPage() {
                 square={PromotionViewSquare}
                 sendInput={(square: string, pieceType: PieceType) => board.promotePawn(square, pieceType)}
                 changePiece={(square: string, pieceType: string) => movePiece([square, pieceType])}/>
-
-
         </div>
 
     )
