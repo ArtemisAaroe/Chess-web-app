@@ -135,7 +135,7 @@ export default function ChessPage() {
                     } else {
                         throw console.error(move.to + " read as longer then two digits, but could not be cast to PieceType");   
                     }
-                    continue;shapes
+                    continue;
                 }
                 if (!entryTo) {
                     throw console.error(`Invalid move format, expected mistake in .to: ${move}`);
