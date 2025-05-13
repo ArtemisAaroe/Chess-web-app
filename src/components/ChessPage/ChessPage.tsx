@@ -8,6 +8,7 @@ import { Board } from "../../objects/Board"
 import PromotionView from "../PromotionView/PromotionView"
 import { isPieceType } from "../../emums/Piece"
 import { ChessType } from "../../emums/Chess"
+import MoveLog from "../MoveLog/MoveLog"
 
 
 export default function ChessPage() {
@@ -94,6 +95,10 @@ export default function ChessPage() {
 
     const [PromotionViewSquare, setPromotionViewSquare] = useState("")
 
+    const [whiteMoves, setWhiteMoves] =  useState<string[]>([]);
+
+    const [blackMoves, setBlackMoves] =  useState<string[]>([]);
+
     const whitePlayer: string = "cat"
     const blackPlayer: string = "moon";
     const chessStyle: ChessType = ChessType.Classical;
@@ -150,6 +155,11 @@ export default function ChessPage() {
                     piece: null,
                     tabEnabled: entryFrom.tabEnabled,
                     dotEnabled: entryFrom.dotEnabled})
+                if (player === 1) {
+                    setWhiteMoves(prevMoves => [...prevMoves, move.to])
+                } else {
+                    setBlackMoves(prevMoves => [...prevMoves, move.to])
+                }
             }
             setPlayer(player * (-1))
             return newBoardstate;
@@ -269,9 +279,8 @@ export default function ChessPage() {
                     ))}       
                 </div>
             </div>
-                <StopWatch player={player} chessType={chessStyle}/>
-
-            
+            <StopWatch player={player} chessType={chessStyle}/>
+            <MoveLog whiteMoves={whiteMoves} blackMoves={blackMoves}/>
             <PromotionView 
                 player={player} 
                 display={displayPromotionView} 

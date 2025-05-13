@@ -5,6 +5,7 @@
     background: #550000;
     border-radius: 10px;
     border: black solid 2px;
+    /* align-self: start;  */
     grid-area: clock
     }
 

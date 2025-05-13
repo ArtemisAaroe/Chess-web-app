@@ -103,9 +103,9 @@ export default function StopWatch({player, chessType, whiteName, blackName}: sto
             role="grid"
             aria-label="Clock denoting time left for white and black player">
             <h2 aria-label={`White clock: ${whiteTime}`}
-            >{whiteName ? whiteName : "White"} ({whiteRound})</h2>
+                >{whiteName ? whiteName : "White"} ({whiteRound})</h2>
             <h2 aria-label={`Black clock: ${blackTime}`}
-            >{blackName ? blackName : "Black"} ({blackRound})</h2>
+                >{blackName ? blackName : "Black"} ({blackRound})</h2>
             <h2 className={player === 1 ? "highlight-time" : "unhighlighted-time"}
                 >{displayTime(whiteTime)}</h2>
             <h2 className={player === (-1) ?  "highlight-time" : "unhighlighted-time"}>{displayTime(blackTime)}</h2>

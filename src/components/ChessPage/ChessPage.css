@@ -28,12 +28,11 @@
 .background-in-game {
     display: grid;
     grid-template-columns: repeat(5, auto);
-    grid-template-rows: repeat(5, auto);
+    grid-template-rows: auto min-content 1fr auto;
     grid-template-areas: 
         "game-banner game-banner game-banner game-banner game-banner"
         "board board board clock clock"
-        "board board board . ."
-        "board board board . ."
+        "board board board log log"
         ". . . . .";
     gap: 1vw;
 }
@@ -65,13 +64,12 @@
         width: 100%;
         max-width: 900px;    
         margin: 0 auto;    
-        grid-template-rows: repeat(5, auto);
+        grid-template-rows: repeat(4, auto);
         grid-template-columns: 1fr;
         grid-template-areas: 
             "game-banner"
             "clock"
             "board"
-            "board"
-            "board";
+            "log";
     }
 }
